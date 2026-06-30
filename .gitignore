@@ -1,0 +1,17 @@
+node_modules
+dist
+build
+rescued
+
+# Local env — never commit real secrets
+.env
+.env.local
+.env.*.local
+
+# Logs / OS
+*.log
+.DS_Store
+
+# TS build info
+*.tsbuildinfo
+.tmp

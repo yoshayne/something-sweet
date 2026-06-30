@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Something Sweet by Erica - Luxury Bakery Theme */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+    --card: 40 20% 98%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 0% 5%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 15% 96%;
+    --secondary-foreground: 0 0% 18%;
+    --muted: 40 15% 96%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 40 15% 96%;
+    --accent-foreground: 0 0% 18%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 10% 90%;
+    --input: 30 10% 90%;
+    --ring: 43 96% 42%;
+    --radius: 0px;
+    
+    /* Gold color palette */
+    --gold-deep: 43 85% 32%;
+    --gold: 43 82% 42%;
+    --gold-mid: 43 76% 52%;
+    --gold-bright: 47 91% 61%;
+    --gold-pale: 47 90% 91%;
+    
+    /* Neutrals */
+    --off-white: 40 20% 98%;
+    --light-gray: 36 15% 94%;
+    --charcoal: 0 0% 18%;
+    --gray: 0 0% 42%;
+    --gray-light: 0 0% 67%;
+    
+    /* Charts */
+    --chart-1: 43 85% 32%;
+    --chart-2: 43 82% 42%;
+    --chart-3: 43 76% 52%;
+    --chart-4: 47 91% 61%;
+    --chart-5: 47 90% 91%;
+  }
+
+  .dark {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 43 82% 42%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 100% / 10%;
+    --input: 0 0% 100% / 15%;
+    --ring: 43 82% 42%;
+    --chart-1: 43 85% 32%;
+    --chart-2: 43 82% 42%;
+    --chart-3: 43 76% 52%;
+    --chart-4: 47 91% 61%;
+    --chart-5: 47 90% 91%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: "DM Sans", system-ui, sans-serif;
+    font-weight: 300;
+  }
+
+  button:not([disabled]),
+  [role="button"]:not([disabled]) {
+    cursor: pointer;
+  }
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-16px); }
+}
+
+@keyframes float-subtle {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.02) translateY(-8px); }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes gold-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes goldSlide {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.animate-gold-shimmer {
+  background-size: 200% 100%;
+  animation: gold-shimmer 3s ease-in-out infinite;
+}
+
+/* Animated circulating gold gradient */
+.animate-gold-slide {
+  background: linear-gradient(105deg, #3D2200, #7A4A00, #B8780A, #F0B420, #FFE168, #F0B420, #B8780A, #7A4A00, #FFE168);
+  background-size: 200% 100%;
+  animation: goldSlide 3s linear infinite;
+}
+
+/* Gold gradient text with animation */
+.text-gold-slide {
+  background: linear-gradient(105deg, #3D2200, #7A4A00, #B8780A, #F0B420, #FFE168, #F0B420, #B8780A, #7A4A00, #FFE168);
+  background-size: 200% 100%;
+  animation: goldSlide 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.animate-fade-up {
+  opacity: 0;
+  animation: fade-up 0.8s ease-out forwards;
+}
+
+/* Gold gradient text utility */
+.text-gold-gradient {
+  background: linear-gradient(135deg, hsl(43 85% 32%), hsl(47 91% 61%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gold gradient background */
+.bg-gold-gradient {
+  background: linear-gradient(135deg, hsl(43 85% 32%), hsl(47 91% 61%));
+}
+
+/* Animated gold gradient button */
+.btn-gold {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(105deg, #3D2200, #7A4A00, #B8780A, #F0B420, #FFE168, #F0B420, #B8780A, #7A4A00, #FFE168);
+  background-size: 200% 100%;
+  animation: goldSlide 3s linear infinite;
+  color: white;
+  border: none;
+}
+
+.btn-gold:hover {
+  filter: brightness(1.1);
+}
+
+/* Button gold hover effect (reveals animated gradient on hover) */
+.btn-gold-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gold-hover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, #3D2200, #7A4A00, #B8780A, #F0B420, #FFE168, #F0B420, #B8780A, #7A4A00, #FFE168);
+  background-size: 200% 100%;
+  animation: goldSlide 3s linear infinite;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+.btn-gold-hover:hover::after {
+  transform: scaleX(1);
+}
+
+.btn-gold-hover > * {
+  position: relative;
+  z-index: 1;
+}
