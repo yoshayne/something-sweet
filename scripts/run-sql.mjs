@@ -14,13 +14,21 @@ if (!file) {
 
 const sql = readFileSync(resolve(process.cwd(), file), "utf-8");
 
+// Same SSL rules as src/server/db.ts: internal Railway = no SSL, external proxy
+// = SSL (self-signed), override via PGSSLMODE.
+function resolveSsl() {
+  const url = process.env.DATABASE_URL || "";
+  const mode = process.env.PGSSLMODE;
+  if (mode === "disable") return undefined;
+  if (mode === "require" || mode === "no-verify") return { rejectUnauthorized: false };
+  if (url.includes(".railway.internal")) return undefined;
+  if (/rlwy\.net|\.railway\.app|sslmode=require/.test(url)) return { rejectUnauthorized: false };
+  return undefined;
+}
+
 const client = new pg.Client({
   connectionString: process.env.DATABASE_URL,
-  ssl:
-    process.env.DATABASE_URL?.includes("railway") ||
-    process.env.PGSSLMODE === "require"
-      ? { rejectUnauthorized: false }
-      : undefined,
+  ssl: resolveSsl(),
 });
 
 try {

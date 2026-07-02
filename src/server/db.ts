@@ -9,13 +9,24 @@ types.setTypeParser(701, (v) => (v === null ? null : parseFloat(v))); // float8
 // number to keep the /api/orders/stats response shape identical to D1.
 types.setTypeParser(20, (v) => (v === null ? null : parseInt(v, 10))); // int8
 
+// SSL selection:
+//   * Railway private networking (postgres.railway.internal) is plaintext — no SSL.
+//   * The external TCP proxy (*.rlwy.net / *.railway.app) needs SSL with a
+//     self-signed cert -> rejectUnauthorized:false.
+//   * Override with PGSSLMODE=require|no-verify (force on) or disable (force off).
+function resolveSsl() {
+  const url = process.env.DATABASE_URL || "";
+  const mode = process.env.PGSSLMODE;
+  if (mode === "disable") return undefined;
+  if (mode === "require" || mode === "no-verify") return { rejectUnauthorized: false };
+  if (url.includes(".railway.internal")) return undefined;
+  if (/rlwy\.net|\.railway\.app|sslmode=require/.test(url)) return { rejectUnauthorized: false };
+  return undefined;
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl:
-    process.env.DATABASE_URL?.includes("railway") ||
-    process.env.PGSSLMODE === "require"
-      ? { rejectUnauthorized: false }
-      : undefined,
+  ssl: resolveSsl(),
 });
 
 // Convert "?, ?, ?" -> "$1, $2, $3"

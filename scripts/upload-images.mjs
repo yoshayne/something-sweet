@@ -28,8 +28,8 @@ if (!existsSync(RESCUED)) {
 }
 
 const s3 = new S3Client({
-  endpoint: process.env.BUCKET_ENDPOINT,
-  region: process.env.BUCKET_REGION || "auto",
+  endpoint: process.env.BUCKET_ENDPOINT_URL || process.env.BUCKET_ENDPOINT,
+  region: process.env.BUCKET_DEFAULT_REGION || process.env.BUCKET_REGION || "auto",
   forcePathStyle: true,
   credentials: {
     accessKeyId: process.env.BUCKET_ACCESS_KEY_ID || "",
