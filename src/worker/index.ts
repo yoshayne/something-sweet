@@ -65,8 +65,12 @@ const ADMIN_EMAIL = "somethingsweetbyerica@gmail.com";
 const ADMIN_SMS = "8037183346@vtext.com";
 
 // Helper to send email to admin
-const sendToAdmin = async (env: Env, params: { subject: string; html_body: string; text_body: string }) => {
-  // Send email notification
+const sendToAdmin = async (
+  env: Env,
+  params: { subject: string; html_body: string; text_body: string; reply_to?: string },
+) => {
+  // Send email notification (reply_to, when provided, lets Erica reply directly
+  // to the person who triggered it — e.g. a contact-form sender).
   await (env.EMAILS as any).send({
     to: ADMIN_EMAIL,
     ...params,
@@ -199,6 +203,99 @@ app.get("/api/files/*", async (c) => {
   headers.set("Cache-Control", "public, max-age=31536000");
   
   return new Response(object.body, { headers });
+});
+
+// ============ CONTACT FORM ============
+
+// Handle a Contact page submission: notify admin (email + SMS, reply-to the
+// sender) and send the sender a confirmation.
+app.post("/api/contact", async (c) => {
+  const body = await c.req.json();
+  const name = (body.name || "").trim();
+  const email = (body.email || "").trim();
+  const phone = (body.phone || "").trim();
+  const message = (body.message || "").trim();
+
+  if (!name || !email || !message) {
+    return c.json({ error: "Name, email, and message are required." }, 400);
+  }
+
+  const subjectMap: Record<string, string> = {
+    order: "Order Question",
+    custom: "Custom Design Request",
+    pricing: "Pricing Inquiry",
+    delivery: "Delivery/Pickup",
+    other: "Other",
+  };
+  const topic = subjectMap[body.subject] || body.subject || "General Inquiry";
+  const firstName = name.split(" ")[0];
+
+  // Notify admin — reply_to is the sender so Erica can reply directly.
+  try {
+    await sendToAdmin(c.env, {
+      subject: `📨 New Message: ${topic} — ${name}`,
+      reply_to: email,
+      html_body: emailTemplate(`
+        ${emailHeader("New Contact Message")}
+        ${emailBody(`
+          <div style="background-color: #fafaf9; padding: 20px; margin-bottom: 20px; border-left: 3px solid #C9920E;">
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #0C0C0C;">Name:</strong> <span style="color: #3f3f46;">${name}</span></p>
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #0C0C0C;">Email:</strong> <span style="color: #3f3f46;">${email}</span></p>
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #0C0C0C;">Phone:</strong> <span style="color: #3f3f46;">${phone || "Not provided"}</span></p>
+            <p style="margin: 0; font-size: 14px;"><strong style="color: #0C0C0C;">Topic:</strong> <span style="color: #3f3f46;">${topic}</span></p>
+          </div>
+          <div style="background-color: #fafaf9; padding: 20px; border-left: 3px solid #C9920E;">
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #0C0C0C;">Message:</strong></p>
+            <p style="margin: 0; font-size: 14px; color: #3f3f46; white-space: pre-wrap;">${message}</p>
+          </div>
+          <p style="margin: 24px 0 0 0; font-size: 14px; color: #71717a;">
+            Just reply to this email to respond to ${firstName} directly.
+          </p>
+        `)}
+        ${emailFooter("Something Sweet by Erica")}
+      `),
+      text_body: `New contact message (${topic})\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone || "Not provided"}\n\n${message}`,
+    });
+  } catch (e) {
+    console.error("Failed to send contact admin notification:", e);
+    return c.json({ error: "Failed to send message. Please try again." }, 500);
+  }
+
+  // Confirmation to the sender
+  try {
+    await (c.env.EMAILS as unknown as { send: (params: { to: string; subject: string; html_body: string; text_body: string; reply_to?: string }) => Promise<void> }).send({
+      to: email,
+      subject: "We got your message! 💌",
+      reply_to: ADMIN_EMAIL,
+      html_body: emailTemplate(`
+        ${emailHeader("Message Received")}
+        ${emailBody(`
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #3f3f46;">
+            Hi ${firstName},
+          </p>
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #3f3f46;">
+            Thank you for reaching out to Something Sweet by Erica! I've received your message and will get back to you within 24 hours.
+          </p>
+          <div style="background-color: #fafaf9; padding: 20px; margin-bottom: 24px; border-left: 3px solid #C9920E;">
+            <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #0C0C0C;">Your message:</strong></p>
+            <p style="margin: 0; font-size: 14px; color: #3f3f46; white-space: pre-wrap;">${message}</p>
+          </div>
+          <p style="margin: 24px 0 0 0; font-size: 14px; color: #3f3f46;">
+            With love,<br>
+            <strong style="color: #0C0C0C;">Erica</strong><br>
+            <span style="color: #C9920E; font-style: italic;">Something Sweet by Erica</span>
+          </p>
+        `)}
+        ${emailFooter("Something Sweet by Erica · Made with love 💛")}
+      `),
+      text_body: `Hi ${firstName},\n\nThank you for reaching out! I've received your message and will get back to you within 24 hours.\n\nYour message:\n${message}\n\nWith love,\nErica`,
+    });
+  } catch (e) {
+    console.error("Failed to send contact confirmation:", e);
+    // Non-fatal — admin was already notified.
+  }
+
+  return c.json({ success: true });
 });
 
 // Get all orders with optional status filter
@@ -414,6 +511,11 @@ app.patch("/api/orders/:id/status", async (c) => {
         subject: "Thank you for your order! 💛",
         title: "Order Complete",
         message: "Thank you so much for choosing Something Sweet by Erica! I hope your treats bring joy to your celebration. I'd love to hear how everything turned out!",
+      },
+      cancelled: {
+        subject: "Your order has been cancelled",
+        title: "Order Cancelled",
+        message: "Your order has been cancelled. If this was a mistake, or if you'd like to place a new order or discuss other options, just reply to this email — I'm happy to help!",
       },
     };
     
@@ -1092,7 +1194,43 @@ app.post("/api/subscribers", async (c) => {
   await c.env.DB.prepare(
     "INSERT INTO subscribers (email, name, is_active, created_at, updated_at) VALUES (?, ?, 1, ?, ?)"
   ).bind(email, body.name || null, now, now).run();
-  
+
+  // Welcome the new subscriber
+  try {
+    const greeting = body.name ? body.name.split(" ")[0] : "there";
+    await (c.env.EMAILS as unknown as { send: (params: { to: string; subject: string; html_body: string; text_body: string; reply_to?: string }) => Promise<void> }).send({
+      to: email,
+      subject: "Welcome to Something Sweet by Erica! 💛",
+      reply_to: ADMIN_EMAIL,
+      html_body: emailTemplate(`
+        ${emailHeader("Welcome, Sweet Friend!")}
+        ${emailBody(`
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #3f3f46;">
+            Hi ${greeting},
+          </p>
+          <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 24px; color: #3f3f46;">
+            Thank you for joining the Something Sweet by Erica family! You'll be the first to know about seasonal specials, new treats, and exclusive offers.
+          </p>
+          <div style="background-color: #fafaf9; padding: 20px; margin-bottom: 24px; border-left: 3px solid #C9920E;">
+            <p style="margin: 0; font-size: 14px; color: #3f3f46;">
+              Craving something sweet? Browse the menu and place an order anytime at
+              <a href="https://somethingsweet.shop" style="color: #C9920E;">somethingsweet.shop</a>.
+            </p>
+          </div>
+          <p style="margin: 24px 0 0 0; font-size: 14px; color: #3f3f46;">
+            With love,<br>
+            <strong style="color: #0C0C0C;">Erica</strong><br>
+            <span style="color: #C9920E; font-style: italic;">Something Sweet by Erica</span>
+          </p>
+        `)}
+        ${emailFooter("You're receiving this because you signed up for updates from Something Sweet by Erica.")}
+      `),
+      text_body: `Hi ${greeting},\n\nThank you for joining the Something Sweet by Erica family! You'll be the first to know about seasonal specials, new treats, and exclusive offers.\n\nPlace an order anytime at somethingsweet.shop\n\nWith love,\nErica`,
+    });
+  } catch (e) {
+    console.error("Failed to send subscriber welcome:", e);
+  }
+
   // Notify admin
   try {
     await sendToAdmin(c.env, {
