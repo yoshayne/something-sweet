@@ -458,6 +458,15 @@ app.post("/api/orders", async (c) => {
             <p style="margin: 4px 0 0 0; font-size: 14px; color: #3f3f46;">• Event Date: ${formattedDate}</p>
           </div>
           
+          <div style="background-color: #fffbeb; padding: 16px 20px; margin-bottom: 20px; border-left: 3px solid #C9920E;">
+            <p style="margin: 0; font-size: 14px; color: #3f3f46;">
+              📩 <strong style="color: #0C0C0C;">Don't miss your quote!</strong> My replies sometimes land in
+              <strong>spam</strong> or the <strong>Promotions</strong> tab. Please add
+              <strong>erica@somethingsweet.shop</strong> to your contacts, and if this email
+              was in spam, mark it "Not Spam" so you get your quote and updates.
+            </p>
+          </div>
+
           <p style="margin: 0 0 8px 0; font-size: 14px; color: #3f3f46;">
             If you have any questions or need to make changes, just reply to this email!
           </p>
@@ -469,7 +478,7 @@ app.post("/api/orders", async (c) => {
         `)}
         ${emailFooter("Something Sweet by Erica · Charlotte, NC · Made with love 💛")}
       `),
-      text_body: `Hi ${body.customer_name.split(" ")[0]},\n\nThank you for your order request! I've received it and will review the details.\n\nExpect a personalized quote within 24-48 hours.\n\nYour Order:\n- ${body.product_type}\n- ${body.flavor}\n- ${body.occasion}\n- Event Date: ${formattedDate}\n\nWith love,\nErica\nSomething Sweet by Erica`,
+      text_body: `Hi ${body.customer_name.split(" ")[0]},\n\nThank you for your order request! I've received it and will review the details.\n\nExpect a personalized quote within 24-48 hours.\n\nTIP: My replies sometimes land in spam or the Promotions tab. Please add erica@somethingsweet.shop to your contacts (and mark this "Not Spam" if it landed there) so you receive your quote and updates.\n\nYour Order:\n- ${body.product_type}\n- ${body.flavor}\n- ${body.occasion}\n- Event Date: ${formattedDate}\n\nWith love,\nErica\nSomething Sweet by Erica`,
     });
   } catch (e) {
     console.error("Failed to send customer confirmation:", e);

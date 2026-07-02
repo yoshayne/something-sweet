@@ -79,8 +79,14 @@ export default function CupcakeForm() {
           Request Received!
         </h3>
         <p className="text-sm text-gray max-w-md mx-auto leading-relaxed">
-          Thank you for your cupcake order request. I'll send you a quote 
+          Thank you for your cupcake order request. I'll send you a quote
           within 24-48 hours.
+        </p>
+        <p className="text-xs text-gray/90 max-w-md mx-auto leading-relaxed mt-4 bg-off-white border border-light-gray rounded-md px-4 py-3">
+          📩 A confirmation email is on its way. If you don't see it, please
+          check your <strong>spam/junk</strong> folder, mark it "Not Spam," and
+          add <strong>erica@somethingsweet.shop</strong> to your contacts so you
+          receive your quote and order updates.
         </p>
         <button
           onClick={() => {
