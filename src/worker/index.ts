@@ -61,8 +61,10 @@ const emailFooter = (text: string) => `
 </div>
 `;
 
-const ADMIN_EMAIL = "somethingsweetbyerica@gmail.com";
-const ADMIN_SMS = "8037183346@vtext.com";
+// Where owner notifications are delivered, and the Reply-To on customer emails.
+// Configurable via env; defaults to the domain address.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "erica@somethingsweet.shop";
+const ADMIN_SMS = process.env.ADMIN_SMS || "8037183346@vtext.com";
 
 // Helper to send email to admin
 const sendToAdmin = async (

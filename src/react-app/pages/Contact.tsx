@@ -90,7 +90,7 @@ export default function ContactPage() {
                 </h2>
                 <div className="space-y-3 sm:space-y-4">
                   <a
-                    href="mailto:somethingsweetbyerica@gmail.com"
+                    href="mailto:erica@somethingsweet.shop"
                     className="flex items-start gap-4 group"
                   >
                     <span className="w-10 h-10 flex items-center justify-center bg-off-white border border-light-gray text-gold-deep flex-shrink-0">
@@ -101,7 +101,7 @@ export default function ContactPage() {
                         Email
                       </span>
                       <span className="text-sm text-black group-hover:text-gold-deep transition-colors">
-                        somethingsweetbyerica@gmail.com
+                        erica@somethingsweet.shop
                       </span>
                     </div>
                   </a>

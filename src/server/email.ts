@@ -13,8 +13,8 @@ export const EMAILS = {
   async send(params: EmailParams) {
     const body: Record<string, unknown> = {
       sender: {
-        email: process.env.BREVO_SENDER_EMAIL,
-        name: process.env.BREVO_SENDER_NAME,
+        email: process.env.BREVO_SENDER_EMAIL || "erica@somethingsweet.shop",
+        name: process.env.BREVO_SENDER_NAME || "Something Sweet by Erica",
       },
       to: [{ email: params.to }],
       subject: params.subject,
