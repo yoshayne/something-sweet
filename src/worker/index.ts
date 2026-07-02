@@ -26,56 +26,6 @@ app.use("*", async (c, next) => {
   await next();
 });
 
-// TEMP DIAGNOSTIC — surfaces why DB/bucket calls fail in prod (generic 500s hide
-// the real error). Safe to remove once the deploy is healthy.
-app.get("/api/_diag", async (c) => {
-  const dbUrl = process.env.DATABASE_URL || "";
-  let dbHost = "";
-  try {
-    dbHost = new URL(dbUrl).host;
-  } catch {
-    /* ignore */
-  }
-  const out: Record<string, unknown> = {
-    env: {
-      DATABASE_URL: !!process.env.DATABASE_URL,
-      db_host: dbHost,
-      BUCKET_ENDPOINT_URL: process.env.BUCKET_ENDPOINT_URL || process.env.BUCKET_ENDPOINT || null,
-      BUCKET_NAME: process.env.BUCKET_NAME || null,
-      BUCKET_ACCESS_KEY_ID: !!(process.env.BUCKET_ACCESS_KEY_ID),
-      BUCKET_SECRET_ACCESS_KEY: !!(process.env.BUCKET_SECRET_ACCESS_KEY),
-      BREVO_API_KEY: !!process.env.BREVO_API_KEY,
-      STRIPE_SECRET_KEY: !!process.env.STRIPE_SECRET_KEY,
-    },
-    db: {} as Record<string, unknown>,
-    bucket: {} as Record<string, unknown>,
-  };
-
-  try {
-    const r = await c.env.DB.prepare("SELECT 1 as ok").first();
-    (out.db as Record<string, unknown>).select1 = r;
-  } catch (e) {
-    (out.db as Record<string, unknown>).select1_error = String((e as Error)?.message || e);
-  }
-  try {
-    const r = await c.env.DB.prepare("SELECT count(*)::int as n FROM settings").first();
-    (out.db as Record<string, unknown>).settings_count = r;
-  } catch (e) {
-    (out.db as Record<string, unknown>).settings_error = String((e as Error)?.message || e);
-  }
-
-  try {
-    await c.env.R2_BUCKET.put("diag/ping.txt", Buffer.from("ping"), {
-      httpMetadata: { contentType: "text/plain" },
-    });
-    (out.bucket as Record<string, unknown>).put = "ok";
-  } catch (e) {
-    (out.bucket as Record<string, unknown>).put_error = String((e as Error)?.message || e);
-  }
-
-  return c.json(out);
-});
-
 // Email template helpers
 const emailTemplate = (content: string) => `
 <!DOCTYPE html>
