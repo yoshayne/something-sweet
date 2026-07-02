@@ -790,6 +790,11 @@ app.post("/api/invoices", async (c) => {
             <p style="margin: 0 0 16px 0; font-size: 14px; color: #3f3f46; text-align: center;">
               Pay securely with credit card, debit card, or Cash App
             </p>
+            <div style="background-color: #fffbeb; padding: 16px 20px; margin: 0 0 16px 0; border-left: 3px solid #C9920E;">
+              <p style="margin: 0; font-size: 14px; color: #3f3f46;">
+                📩 <strong style="color: #0C0C0C;">Don't miss this invoice.</strong> If you don't see my emails, check your <strong>spam</strong> or <strong>Promotions</strong> folder and add <strong>erica@somethingsweet.shop</strong> to your contacts.
+              </p>
+            </div>
             <p style="margin: 24px 0 0 0; font-size: 14px; color: #3f3f46;">
               Thank you for your business!<br><br>
               <strong style="color: #0C0C0C;">Erica</strong><br>
@@ -798,7 +803,7 @@ app.post("/api/invoices", async (c) => {
           `)}
           ${emailFooter("Something Sweet by Erica · Charlotte, NC")}
         `),
-        text_body: `Hi ${customerName},\n\nHere's your invoice for your recent order.\n\nInvoice: ${invoiceNumber}\nAmount Due: $${totalAmount}\nDue Date: ${dueDate}\n\nView & Pay Online: https://somethingsweet.shop/invoice/${invoiceNumber}\n\nPay securely with credit card, debit card, or Cash App.\n\nThank you!\nErica`,
+        text_body: `Hi ${customerName},\n\nHere's your invoice for your recent order.\n\nInvoice: ${invoiceNumber}\nAmount Due: $${totalAmount}\nDue Date: ${dueDate}\n\nView & Pay Online: https://somethingsweet.shop/invoice/${invoiceNumber}\n\nPay securely with credit card, debit card, or Cash App.\n\nTIP: Don't miss this invoice — if you don't see my emails, check your spam or Promotions folder and add erica@somethingsweet.shop to your contacts.\n\nThank you!\nErica`,
       });
     } catch (e) {
       console.error("Failed to send invoice email:", e);
@@ -897,6 +902,11 @@ app.patch("/api/invoices/:id/status", async (c) => {
               <p style="margin: 0 0 16px 0; font-size: 14px; color: #3f3f46;">
                 Please reply to this email with any questions, or to arrange payment.
               </p>
+              <div style="background-color: #fffbeb; padding: 16px 20px; margin: 0 0 16px 0; border-left: 3px solid #C9920E;">
+                <p style="margin: 0; font-size: 14px; color: #3f3f46;">
+                  📩 <strong style="color: #0C0C0C;">Don't miss this invoice.</strong> If you don't see my emails, check your <strong>spam</strong> or <strong>Promotions</strong> folder and add <strong>erica@somethingsweet.shop</strong> to your contacts.
+                </p>
+              </div>
               <p style="margin: 24px 0 0 0; font-size: 14px; color: #3f3f46;">
                 Thank you for your business!<br><br>
                 <strong style="color: #0C0C0C;">Erica</strong><br>
@@ -905,7 +915,7 @@ app.patch("/api/invoices/:id/status", async (c) => {
             `)}
             ${emailFooter("Something Sweet by Erica · Charlotte, NC")}
           `),
-          text_body: `Hi ${customerName},\n\nHere's your invoice for your recent order.\n\nInvoice: ${invoiceNumber}\nAmount Due: $${totalAmount}\nDue Date: ${dueDate}\n\nView & Pay Online: https://somethingsweet.shop/invoice/${invoiceNumber}\n\nPay securely with credit card, debit card, or Cash App.\n\nThank you!\nErica`,
+          text_body: `Hi ${customerName},\n\nHere's your invoice for your recent order.\n\nInvoice: ${invoiceNumber}\nAmount Due: $${totalAmount}\nDue Date: ${dueDate}\n\nView & Pay Online: https://somethingsweet.shop/invoice/${invoiceNumber}\n\nPay securely with credit card, debit card, or Cash App.\n\nTIP: Don't miss this invoice — if you don't see my emails, check your spam or Promotions folder and add erica@somethingsweet.shop to your contacts.\n\nThank you!\nErica`,
         });
       } catch (e) {
         console.error("Failed to send invoice email:", e);
@@ -1053,6 +1063,11 @@ app.post("/api/invoices/:id/resend", async (c) => {
           <p style="margin: 0 0 16px 0; font-size: 14px; color: #3f3f46;">
             Please reply to this email with any questions, or to arrange payment.
           </p>
+          <div style="background-color: #fffbeb; padding: 16px 20px; margin: 0 0 16px 0; border-left: 3px solid #C9920E;">
+            <p style="margin: 0; font-size: 14px; color: #3f3f46;">
+              📩 <strong style="color: #0C0C0C;">Don't miss this invoice.</strong> If you don't see my emails, check your <strong>spam</strong> or <strong>Promotions</strong> folder and add <strong>erica@somethingsweet.shop</strong> to your contacts.
+            </p>
+          </div>
           <p style="margin: 24px 0 0 0; font-size: 14px; color: #3f3f46;">
             Thank you for your business!<br><br>
             <strong style="color: #0C0C0C;">Erica</strong><br>
@@ -1061,7 +1076,7 @@ app.post("/api/invoices/:id/resend", async (c) => {
         `)}
         ${emailFooter("Something Sweet by Erica · Charlotte, NC")}
       `),
-      text_body: `Hi ${customerName},\n\nThis is a friendly reminder about your invoice.\n\nInvoice: ${invoiceNumber}\nAmount Due: $${totalAmount}\nDue Date: ${dueDate}\n\nPlease reply to this email with any questions.\n\nThank you!\nErica`,
+      text_body: `Hi ${customerName},\n\nThis is a friendly reminder about your invoice.\n\nInvoice: ${invoiceNumber}\nAmount Due: $${totalAmount}\nDue Date: ${dueDate}\n\nPlease reply to this email with any questions.\n\nTIP: Don't miss this invoice — if you don't see my emails, check your spam or Promotions folder and add erica@somethingsweet.shop to your contacts.\n\nThank you!\nErica`,
     });
     
     return c.json({ success: true });
