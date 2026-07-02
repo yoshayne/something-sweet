@@ -1,4 +1,6 @@
 import { Pool, types } from "pg";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 // FOOTGUN FIX #1: make NUMERIC/DECIMAL/FLOAT8 come back as JS numbers, not strings.
 // (SQLite REAL returned numbers; the frontend does math on totals.)
@@ -76,3 +78,26 @@ export const DB = {
     return new Statement(sql);
   },
 };
+
+// Ensure the database is ready on startup: create tables/indexes if missing
+// (idempotent — schema.sql uses IF NOT EXISTS) and load the seed data once, only
+// when the DB is empty. Safe to run on every boot. Never throws — logs and
+// continues so a transient DB hiccup doesn't crash the whole app.
+export async function bootstrap() {
+  try {
+    const schemaPath = resolve(process.cwd(), "db/schema.sql");
+    await pool.query(readFileSync(schemaPath, "utf-8"));
+
+    const { rows } = await pool.query("SELECT count(*)::int AS n FROM settings");
+    const count = rows[0]?.n ?? 0;
+    if (count === 0) {
+      const seedPath = resolve(process.cwd(), "db/seed.sql");
+      await pool.query(readFileSync(seedPath, "utf-8"));
+      console.log("[bootstrap] schema ensured; database seeded from db/seed.sql");
+    } else {
+      console.log(`[bootstrap] schema ensured; ${count} settings row(s) present, skipping seed`);
+    }
+  } catch (err) {
+    console.error("[bootstrap] failed:", (err as Error)?.message || err);
+  }
+}

@@ -6,7 +6,7 @@
 --   * Dates     -> TEXT                     — app stores/reads ISO strings verbatim
 --   * Auto-inc  -> SERIAL PRIMARY KEY       — sequences reset after seeding
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
   id                 SERIAL PRIMARY KEY,
   customer_name      TEXT,
   customer_email     TEXT,
@@ -30,11 +30,11 @@ CREATE TABLE orders (
   created_at         TEXT DEFAULT (now()::text),
   updated_at         TEXT DEFAULT (now()::text)
 );
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_pickup_date ON orders(pickup_date);
-CREATE INDEX idx_orders_customer_email ON orders(customer_email);
+CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_pickup_date ON orders(pickup_date);
+CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
 
-CREATE TABLE invoices (
+CREATE TABLE IF NOT EXISTS invoices (
   id                       SERIAL PRIMARY KEY,
   order_id                 INTEGER,
   invoice_number           TEXT,
@@ -51,11 +51,11 @@ CREATE TABLE invoices (
   created_at               TEXT DEFAULT (now()::text),
   updated_at               TEXT DEFAULT (now()::text)
 );
-CREATE INDEX idx_invoices_order_id ON invoices(order_id);
-CREATE INDEX idx_invoices_status ON invoices(status);
-CREATE INDEX idx_invoices_invoice_number ON invoices(invoice_number);
+CREATE INDEX IF NOT EXISTS idx_invoices_order_id ON invoices(order_id);
+CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status);
+CREATE INDEX IF NOT EXISTS idx_invoices_invoice_number ON invoices(invoice_number);
 
-CREATE TABLE invoice_items (
+CREATE TABLE IF NOT EXISTS invoice_items (
   id          SERIAL PRIMARY KEY,
   invoice_id  INTEGER,
   description TEXT,
@@ -65,9 +65,9 @@ CREATE TABLE invoice_items (
   created_at  TEXT DEFAULT (now()::text),
   updated_at  TEXT DEFAULT (now()::text)
 );
-CREATE INDEX idx_invoice_items_invoice_id ON invoice_items(invoice_id);
+CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice_id ON invoice_items(invoice_id);
 
-CREATE TABLE gallery_images (
+CREATE TABLE IF NOT EXISTS gallery_images (
   id           SERIAL PRIMARY KEY,
   title        TEXT,
   category     TEXT,
@@ -80,10 +80,10 @@ CREATE TABLE gallery_images (
   created_at   TEXT DEFAULT (now()::text),
   updated_at   TEXT DEFAULT (now()::text)
 );
-CREATE INDEX idx_gallery_images_category ON gallery_images(category);
-CREATE INDEX idx_gallery_images_featured ON gallery_images(is_featured);
+CREATE INDEX IF NOT EXISTS idx_gallery_images_category ON gallery_images(category);
+CREATE INDEX IF NOT EXISTS idx_gallery_images_featured ON gallery_images(is_featured);
 
-CREATE TABLE settings (
+CREATE TABLE IF NOT EXISTS settings (
   id                    SERIAL PRIMARY KEY,
   business_name         TEXT,
   tagline               TEXT,
@@ -113,7 +113,7 @@ CREATE TABLE settings (
   updated_at            TEXT DEFAULT (now()::text)
 );
 
-CREATE TABLE site_images (
+CREATE TABLE IF NOT EXISTS site_images (
   id           SERIAL PRIMARY KEY,
   location     TEXT NOT NULL,
   title        TEXT,
@@ -125,25 +125,25 @@ CREATE TABLE site_images (
   created_at   TEXT DEFAULT (now()::text),
   updated_at   TEXT DEFAULT (now()::text)
 );
-CREATE INDEX idx_site_images_location ON site_images(location);
+CREATE INDEX IF NOT EXISTS idx_site_images_location ON site_images(location);
 
-CREATE TABLE page_content (
+CREATE TABLE IF NOT EXISTS page_content (
   id            SERIAL PRIMARY KEY,
   content_key   TEXT NOT NULL UNIQUE,
   content_value TEXT,
   created_at    TEXT DEFAULT (now()::text),
   updated_at    TEXT DEFAULT (now()::text)
 );
-CREATE INDEX idx_page_content_key ON page_content(content_key);
+CREATE INDEX IF NOT EXISTS idx_page_content_key ON page_content(content_key);
 
-CREATE TABLE hidden_gallery_items (
+CREATE TABLE IF NOT EXISTS hidden_gallery_items (
   id         SERIAL PRIMARY KEY,
   item_id    TEXT NOT NULL UNIQUE,
   created_at TEXT DEFAULT (now()::text),
   updated_at TEXT DEFAULT (now()::text)
 );
 
-CREATE TABLE subscribers (
+CREATE TABLE IF NOT EXISTS subscribers (
   id         SERIAL PRIMARY KEY,
   email      TEXT NOT NULL UNIQUE,
   name       TEXT,

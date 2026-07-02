@@ -4,6 +4,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import app from "../worker/index"; // the existing Hono app (default export, routes already registered)
+import { bootstrap } from "./db";
 
 const DIST = resolve(process.cwd(), "dist");
 
@@ -25,6 +26,14 @@ app.get("*", (c) => {
 });
 
 const port = Number(process.env.PORT) || 8080;
-serve({ fetch: app.fetch, port }, () => {
-  console.log(`Something Sweet by Erica listening on :${port}`);
-});
+
+async function main() {
+  // Ensure DB schema/seed exist before accepting traffic (idempotent).
+  await bootstrap();
+
+  serve({ fetch: app.fetch, port }, () => {
+    console.log(`Something Sweet by Erica listening on :${port}`);
+  });
+}
+
+main();
