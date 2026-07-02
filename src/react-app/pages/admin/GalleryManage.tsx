@@ -59,7 +59,8 @@ export default function GalleryManage() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState("all");
-  const [showPlaceholders, setShowPlaceholders] = useState(true);
+  const [showRemoved, setShowRemoved] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [editImage, setEditImage] = useState<UploadedImage | null>(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -122,8 +123,9 @@ export default function GalleryManage() {
   const filteredImages = allImages.filter((img) => {
     // Filter by category
     if (filterCategory !== "all" && img.category !== filterCategory) return false;
-    // Filter placeholders
-    if (!showPlaceholders && img.isPlaceholder) return false;
+    // "Deleted" (hidden) placeholders are removed from the admin view unless
+    // the user opts to show them (so they can be restored).
+    if (img.isPlaceholder && img.isHidden && !showRemoved) return false;
     return true;
   });
 
@@ -256,6 +258,56 @@ export default function GalleryManage() {
     }
   };
 
+  // Remove every visible placeholder at once (reversible — restore from
+  // "Show removed placeholders"). Useful when the client wants to start fresh.
+  const handleRemoveAllPlaceholders = async () => {
+    const visible = staticGalleryItems.filter((i) => !hiddenIds.includes(i.id));
+    if (visible.length === 0) return;
+    if (
+      !confirm(
+        `Remove all ${visible.length} placeholder image(s) from the gallery?\n\nThey won't show on your site, but you can restore them later with "Show removed placeholders".`
+      )
+    )
+      return;
+
+    setBulkBusy(true);
+    try {
+      await Promise.all(
+        visible.map((i) => fetch(`/api/gallery/hidden/${i.id}`, { method: "POST" }))
+      );
+      await fetchData();
+    } catch (err) {
+      console.error("Bulk remove error:", err);
+      alert("Failed to remove all placeholders. Please try again.");
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  // Permanently delete every uploaded image (image file + database record).
+  const handleDeleteAllUploaded = async () => {
+    if (uploadedImages.length === 0) return;
+    if (
+      !confirm(
+        `Permanently delete all ${uploadedImages.length} uploaded image(s)?\n\nThis removes them from storage and cannot be undone.`
+      )
+    )
+      return;
+
+    setBulkBusy(true);
+    try {
+      for (const img of uploadedImages) {
+        await fetch(`/api/gallery/${img.id}`, { method: "DELETE" });
+      }
+      await fetchData();
+    } catch (err) {
+      console.error("Bulk delete error:", err);
+      alert("Failed to delete all images. Please try again.");
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
@@ -270,7 +322,7 @@ export default function GalleryManage() {
           <div>
             <h1 className="text-2xl font-semibold text-black">Gallery Images</h1>
             <p className="text-sm text-gray mt-1">
-              Manage images that appear on your Gallery page. Hide placeholder images and upload your own.
+              Manage images that appear on your Gallery page. Delete placeholder images and upload your own.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -308,8 +360,33 @@ export default function GalleryManage() {
           </div>
           <div className="bg-light-gray/50 rounded-lg p-4">
             <p className="text-2xl font-semibold text-black">{hiddenCount}</p>
-            <p className="text-sm text-gray">Hidden Placeholders</p>
+            <p className="text-sm text-gray">Removed Placeholders</p>
           </div>
+        </div>
+
+        {/* Bulk actions — clear the gallery to start over */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRemoveAllPlaceholders}
+            disabled={bulkBusy || placeholderCount - hiddenCount === 0}
+            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          >
+            <EyeOff className="w-4 h-4 mr-2" />
+            Remove All Placeholders
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDeleteAllUploaded}
+            disabled={bulkBusy || uploadedCount === 0}
+            className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete All My Images
+          </Button>
+          {bulkBusy && <span className="text-sm text-gray">Working…</span>}
         </div>
 
         {/* Filters */}
@@ -346,11 +423,11 @@ export default function GalleryManage() {
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={showPlaceholders}
-              onChange={(e) => setShowPlaceholders(e.target.checked)}
+              checked={showRemoved}
+              onChange={(e) => setShowRemoved(e.target.checked)}
               className="rounded border-gray"
             />
-            <span className="text-sm text-gray">Show placeholder images</span>
+            <span className="text-sm text-gray">Show removed placeholders</span>
           </label>
         </div>
 
@@ -404,7 +481,7 @@ export default function GalleryManage() {
                   {image.isHidden && (
                     <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
                       <EyeOff className="w-3 h-3" />
-                      Hidden
+                      Removed
                     </div>
                   )}
                 </div>
@@ -417,27 +494,26 @@ export default function GalleryManage() {
                   {/* Actions */}
                   <div className="flex gap-2 mt-3">
                     {image.isPlaceholder ? (
-                      // Placeholder actions: hide/show only
-                      <button
-                        onClick={() => handleToggleHidden(image.id, image.isHidden || false)}
-                        className={`flex-1 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1 ${
-                          image.isHidden 
-                            ? "bg-green-600 hover:bg-green-700" 
-                            : "bg-red-500 hover:bg-red-600"
-                        }`}
-                      >
-                        {image.isHidden ? (
-                          <>
-                            <Eye className="w-3 h-3" />
-                            Show
-                          </>
-                        ) : (
-                          <>
-                            <EyeOff className="w-3 h-3" />
-                            Hide
-                          </>
-                        )}
-                      </button>
+                      // Placeholder actions: delete (hide) or restore. Placeholders
+                      // are built-in demo images, so "delete" removes them from the
+                      // site and can be undone via "Show removed placeholders".
+                      image.isHidden ? (
+                        <button
+                          onClick={() => handleToggleHidden(image.id, true)}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Eye className="w-3 h-3" />
+                          Restore
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleToggleHidden(image.id, false)}
+                          className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs py-2 rounded transition-colors flex items-center justify-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
+                        </button>
+                      )
                     ) : (
                       // Uploaded image actions: edit and delete
                       <>
