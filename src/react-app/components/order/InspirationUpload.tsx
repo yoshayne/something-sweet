@@ -100,7 +100,7 @@ export default function InspirationUpload({
                 Click to upload images
               </span>
               <span className="text-xs text-gray/60">
-                JPG, PNG, GIF, WebP • Max 5MB each
+                JPG, PNG, GIF, WebP • Max 25MB each
               </span>
             </div>
           )}

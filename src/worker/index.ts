@@ -95,9 +95,9 @@ app.post("/api/upload/inspiration", async (c) => {
       return c.json({ error: "Invalid file type. Please upload a JPG, PNG, GIF, or WebP image." }, 400);
     }
     
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      return c.json({ error: "File too large. Maximum size is 5MB." }, 400);
+    // Validate file size (max 25MB)
+    if (file.size > 25 * 1024 * 1024) {
+      return c.json({ error: "File too large. Maximum size is 25MB." }, 400);
     }
     
     // Generate unique filename
@@ -140,8 +140,8 @@ app.post("/api/upload/campaign-image", async (c) => {
       return c.json({ error: "Invalid file type. Please upload a JPG, PNG, GIF, or WebP image." }, 400);
     }
     
-    if (file.size > 5 * 1024 * 1024) {
-      return c.json({ error: "File too large. Maximum size is 5MB." }, 400);
+    if (file.size > 25 * 1024 * 1024) {
+      return c.json({ error: "File too large. Maximum size is 25MB." }, 400);
     }
     
     const timestamp = Date.now();

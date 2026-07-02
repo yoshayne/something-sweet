@@ -99,8 +99,8 @@ export default function EmailCampaign() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be less than 5MB");
+    if (file.size > 25 * 1024 * 1024) {
+      setError("Image must be less than 25MB");
       return;
     }
 
