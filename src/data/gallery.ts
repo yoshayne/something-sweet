@@ -117,10 +117,10 @@ export const galleryItems: GalleryItem[] = [
   },
   {
     id: "seasonal-2",
-    title: "Halloween Spooky Treats",
+    title: "Festive Holiday Cookies",
     category: "seasonal",
-    image: "https://images.unsplash.com/photo-1603903631918-a3ef22e7f6dd?w=600&h=600&fit=crop",
-    description: "Themed cupcakes and cookies",
+    image: "https://images.unsplash.com/photo-1512909006721-3d6018887383?w=600&h=600&fit=crop",
+    description: "Hand-decorated cookies for the holidays",
   },
   {
     id: "seasonal-3",

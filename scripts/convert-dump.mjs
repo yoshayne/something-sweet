@@ -21,15 +21,18 @@ const root = resolve(__dirname, "..");
 const input = resolve(root, process.argv[2] || "d1_dump.sql");
 const output = resolve(root, process.argv[3] || "db/seed.sql");
 
+// Tables to seed. gallery_images, site_images and hidden_gallery_items are
+// intentionally excluded: the original Mocha image files did not survive the
+// migration (Mocha storage is gone), so those rows only produced broken images.
+// The gallery now comes from the curated professional set in src/data/gallery.ts,
+// and site images are (re)uploaded via the admin. Erica's real photos are added
+// through the admin Gallery/Site Images screens.
 const TABLES = [
   "orders",
   "invoices",
   "invoice_items",
-  "gallery_images",
   "settings",
-  "site_images",
   "page_content",
-  "hidden_gallery_items",
   "subscribers",
 ];
 
