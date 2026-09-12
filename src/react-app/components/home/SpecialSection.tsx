@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { useSiteImages } from "@/react-app/hooks/useSiteImages";
 import { usePageContent } from "@/react-app/hooks/usePageContent";
@@ -5,6 +6,7 @@ import { usePageContent } from "@/react-app/hooks/usePageContent";
 export default function SpecialSection() {
   const { images } = useSiteImages();
   const { get } = usePageContent();
+  const [imgFailed, setImgFailed] = useState(false);
   const specialImage = images.homepage_special;
 
   const specialTitle = get("home_special_title", "Black Gold Birthday Cake");
@@ -40,11 +42,12 @@ export default function SpecialSection() {
             This Week Only
           </div>
           {/* Special image or emoji placeholder */}
-          {specialImage ? (
+          {specialImage && !imgFailed ? (
             <img
               src={specialImage.url}
               alt={specialImage.alt_text || "This week's special"}
               className="absolute inset-0 w-full h-full object-cover z-10"
+              onError={() => setImgFailed(true)}
             />
           ) : (
             <span className="text-8xl relative z-10">🎂</span>

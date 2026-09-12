@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { type GalleryItem } from "@/data/gallery";
 
 interface GalleryCardProps {
@@ -13,6 +14,12 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function GalleryCard({ item, index }: GalleryCardProps) {
+  const [failed, setFailed] = useState(false);
+
+  // If the image can't load (e.g. a file that no longer exists in storage),
+  // drop the whole card instead of showing a broken-image icon.
+  if (failed) return null;
+
   return (
     <article
       className="break-inside-avoid group relative overflow-hidden bg-white animate-fade-up"
@@ -25,6 +32,7 @@ export default function GalleryCard({ item, index }: GalleryCardProps) {
           alt={item.title}
           className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
+          onError={() => setFailed(true)}
         />
 
         {/* Hover Overlay */}

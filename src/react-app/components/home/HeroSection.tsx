@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { useSiteImages } from "@/react-app/hooks/useSiteImages";
 import { usePageContent } from "@/react-app/hooks/usePageContent";
@@ -5,7 +6,8 @@ import { usePageContent } from "@/react-app/hooks/usePageContent";
 export default function HeroSection() {
   const { images } = useSiteImages();
   const { get } = usePageContent();
-  const heroImage = images.homepage_hero;
+  const [heroFailed, setHeroFailed] = useState(false);
+  const heroImage = !heroFailed ? images.homepage_hero : null;
 
   const headline = get("home_hero_headline", "Baked Fresh.");
   const headlineAccent = get("home_hero_headline_accent", "Made for You.");
@@ -97,6 +99,7 @@ export default function HeroSection() {
             src={heroImage.url}
             alt={heroImage.alt_text || "Featured cake"}
             className="absolute inset-0 w-full h-full object-cover drop-shadow-[0_12px_40px_rgba(201,146,14,0.25)] animate-float-subtle"
+            onError={() => setHeroFailed(true)}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">

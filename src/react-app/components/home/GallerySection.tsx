@@ -21,6 +21,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 export default function GallerySection() {
   const [uploadedImages, setUploadedImages] = useState<DisplayItem[]>([]);
+  const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
 
   // Fetch uploaded gallery images
   useEffect(() => {
@@ -114,6 +115,10 @@ export default function GallerySection() {
                   src={item.image}
                   alt={item.title}
                   className="w-full h-full object-cover"
+                  onError={() =>
+                    setFailedIds((prev) => new Set(prev).add(item.id))
+                  }
+                  style={failedIds.has(item.id) ? { display: "none" } : undefined}
                 />
               </div>
 
